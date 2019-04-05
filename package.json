@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "postinstall": "npm link npm",
+    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-vm-modules ./build apps\""
+  },
+  "dependencies": {
+    "typescript": "^3.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^11.12.2",
+    "nodemon": "^1.18.10"
+  }
+}

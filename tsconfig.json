@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext"],
+    "module": "commonjs",
+    "strict": true,
+    "target": "esnext",
+    "outDir": "build"
+  },
+  "exclude": [
+    "hello-world.ts"
+  ]
+}
