@@ -7,6 +7,6 @@
     "outDir": "build"
   },
   "exclude": [
-    "hello-world.ts"
+    "test"
   ]
 }

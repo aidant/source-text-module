@@ -13,7 +13,7 @@ const tsOptions: TranspileOptions = {
 
 const app = application({
   context: { console },
-  baseURL: new URL('file:///projects/source-text-module/'),
+  baseURL: new URL('file:///projects/source-text-module/test/'),
   entry: './hello-world.ts',
   resolvers: [resolver],
   loaders: [fileLoader],
