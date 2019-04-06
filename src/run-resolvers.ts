@@ -13,7 +13,7 @@ export interface ResolverResult {
 export type Resolver = (
   options: ResolverOptions,
   toolkit: Toolkit
-) => Promise<Symbol | ResolverResult>
+) => Promise<symbol | ResolverResult>
 
 export const runResolvers = (resolvers: Resolver[], options: ResolverOptions) =>
   runPlugins<Resolver, ResolverOptions, ResolverResult>(resolvers, options)

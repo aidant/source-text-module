@@ -14,7 +14,7 @@ export interface TranspilerResult {
 export type Transpiler = (
   options: TranspilerOptions,
   toolkit: Toolkit
-) => Promise<Symbol | TranspilerResult>
+) => Promise<symbol | TranspilerResult>
 
 export const runTranspilers = (
   transpilers: Transpiler[],

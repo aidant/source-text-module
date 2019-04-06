@@ -14,7 +14,7 @@ export interface LoaderResult {
 export type Loader = (
   options: LoaderOptions,
   toolkit: Toolkit
-) => Promise<Symbol | LoaderResult>
+) => Promise<symbol | LoaderResult>
 
 export const runLoaders = (loaders: Loader[], options: LoaderOptions) =>
   runPlugins<Loader, LoaderOptions, LoaderResult>(loaders, options)

@@ -1,11 +1,11 @@
 export interface Toolkit {
-  next(): Symbol
+  next(): symbol
 }
 
 type Plugin<Options, Result> = (
   options: Options,
   toolkit: Toolkit
-) => Promise<Result | Symbol>
+) => Promise<Result | symbol>
 
 const toolkit: Toolkit = {
   next: () => Symbol('next')
@@ -22,7 +22,7 @@ export const runPlugins = async <
   for (const plugin of plugins) {
     const result = await plugin(options, toolkit)
     if (result === toolkit.next()) continue
-    if (result instanceof Symbol) throw new TypeError('wrong thing mate')
+    if (typeof result === 'symbol') throw new TypeError('wrong thing mate')
     return result
   }
 
