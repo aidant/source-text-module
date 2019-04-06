@@ -12,12 +12,21 @@ const tsOptions: TranspileOptions = {
 }
 
 const app = application({
-  context: { console },
-  baseURL: new URL('file:///projects/source-text-module/test/'),
-  entry: './hello-world.ts',
-  resolvers: [resolver],
-  loaders: [fileLoader],
-  transpilers: [typescriptTranspiler(tsOptions)]
+  scope: { console },
+  resolver: resolver(),
+  loaders: [
+    {
+      test: () => true,
+      handler: fileLoader
+    }
+  ],
+  transpilers: [
+    {
+      test: () => true,
+      handler: typescriptTranspiler(tsOptions)
+    }
+  ]
 })
 
-app.catch(console.error)
+app.run('./hello-world', new URL('file:///projects/source-text-module/test'))
+  .catch(console.error)

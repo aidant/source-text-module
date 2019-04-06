@@ -1,59 +1,65 @@
+import { Cache } from './cache'
 import { SourceTextModule, createContext } from 'vm'
 import { URL } from 'url'
 
-import { Cache } from './cache'
-import { Resolver, runResolvers } from './run-resolvers'
-import { Loader, runLoaders } from './run-loaders'
-import { Transpiler, runTranspilers } from './run-transpilers'
+type Resolver = (options: { specifier: string; parentURL: URL }) => Promise<{ url: URL }>
+type Loader = (options: { url: URL }) => Promise<{ code: string; meta?: any }>
+type Transpiler = (options: { code: string }) => Promise<{ code: string; meta?: any }>
 
-export interface Options {
-  context: object
-  entry: string
-  baseURL: URL
-  resolvers: Resolver[]
-  loaders: Loader[]
-  transpilers: Transpiler[]
+interface Plugin<T> {
+  test: (url: URL) => boolean
+  handler: T
 }
 
-export const application = async (options: Options) => {
+interface Options {
+  scope?: object
+  resolver: Resolver
+  loaders: Plugin<Loader>[]
+  transpilers?: Plugin<Transpiler>[]
+}
+
+export const application = ({
+  scope = Object.create(null),
+  resolver,
+  loaders,
+  transpilers = []
+}: Options) => {
   const cache = new Cache<SourceTextModule>()
+  const context = createContext(scope)
 
   const linker = async (
     specifier: string,
     parentModule: { url: string }
   ): Promise<SourceTextModule> => {
-    const resolved = await runResolvers(options.resolvers, {
-      specifier,
-      parentURL: new URL(parentModule.url)
-    })
+    const { url } = await resolver({ specifier, parentURL: new URL(parentModule.url) })
 
-    if (cache.has(resolved.url)) return cache.get(resolved.url)
+    if (cache.has(url)) return cache.get(url)
 
-    const loaded = await runLoaders(options.loaders, resolved)
+    const loader = loaders.find(loader => loader.test(url))
+    if (!loader) throw new Error('no loader mate')
+    const transpiler = transpilers.find(transpiler => transpiler.test(url))
 
-    const transpiled = await runTranspilers(options.transpilers, {
-      code: loaded.code,
-      ext: loaded.ext
-    })
+    const loaded = await loader.handler({ url })
+    const transpiled = transpiler && (await transpiler.handler({ code: loaded.code }))
 
-    const source = new SourceTextModule(transpiled.code, {
-      url: resolved.url.href,
-      context: createContext(options.context),
+    const source = new SourceTextModule((transpiled && transpiled.code) || loaded.code, {
+      context,
+      url: url.href,
+      importModuleDynamically: linker,
       initializeImportMeta: meta =>
-        Object.assign(
-          meta,
-          { url: resolved.url.href },
-          loaded.meta,
-          transpiled.meta
-        )
+        Object.assign(meta, { url: url.href }, loaded.code, transpiled && transpiled.code)
     })
 
-    cache.add(resolved.url, source)
+    cache.add(url, source)
     await source.link(linker)
     return source
   }
 
-  const source = await linker(options.entry, { url: options.baseURL.href })
-  source.instantiate()
-  await source.evaluate()
+  return {
+    async run(specifier: string, baseURL: URL) {
+      const source = await linker(specifier, { url: baseURL.href })
+      source.instantiate()
+      await source.evaluate()
+    }
+  }
 }
