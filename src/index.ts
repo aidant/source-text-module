@@ -1,5 +1,4 @@
 import { application } from './application'
-import { URL } from 'url'
 import { resolver } from './plugins/resolver'
 import { fileLoader } from './plugins/file-loader'
 import { typescriptTranspiler } from './plugins/typescript-transpiler'
@@ -13,7 +12,7 @@ const tsOptions: TranspileOptions = {
 
 const app = application({
   scope: { console },
-  resolver: resolver(),
+  resolver: resolver({ extensions: ['.ts'] }),
   loaders: [
     {
       test: () => true,
@@ -28,5 +27,5 @@ const app = application({
   ]
 })
 
-app.run('./hello-world', new URL('file:///projects/source-text-module/test'))
+app.run('./hello-world', { url: 'file:///projects/source-text-module/test' })
   .catch(console.error)

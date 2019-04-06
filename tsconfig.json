@@ -4,7 +4,8 @@
     "module": "commonjs",
     "strict": true,
     "target": "esnext",
-    "outDir": "build"
+    "outDir": "build",
+    "esModuleInterop": true
   },
   "exclude": [
     "test"

@@ -27,6 +27,16 @@ export const application = ({
   const cache = new Cache<SourceTextModule>()
   const context = createContext(scope)
 
+  const importModuleDynamically = async (
+    specifier: string,
+    parentModule: { url: string }
+  ): Promise<SourceTextModule> => {
+    const source = await linker(specifier, parentModule)
+    source.instantiate()
+    source.evaluate()
+    return source
+  }
+
   const linker = async (
     specifier: string,
     parentModule: { url: string }
@@ -45,7 +55,7 @@ export const application = ({
     const source = new SourceTextModule((transpiled && transpiled.code) || loaded.code, {
       context,
       url: url.href,
-      importModuleDynamically: linker,
+      importModuleDynamically,
       initializeImportMeta: meta =>
         Object.assign(meta, { url: url.href }, loaded.code, transpiled && transpiled.code)
     })
@@ -56,10 +66,6 @@ export const application = ({
   }
 
   return {
-    async run(specifier: string, baseURL: URL) {
-      const source = await linker(specifier, { url: baseURL.href })
-      source.instantiate()
-      await source.evaluate()
-    }
+    run: importModuleDynamically
   }
 }

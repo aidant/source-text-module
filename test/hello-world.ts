@@ -1,3 +1,7 @@
-const log = (...args: string[]) => console.log(...args)
+const main = async () => {
+  const { log } = await import('./log')
+  log('Hello World!!!')
+}
 
-log('Hello World!!!', import.meta.url)
+main()
+  .catch(console.error)
