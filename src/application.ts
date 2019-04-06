@@ -8,7 +8,7 @@ import { Transpiler, runTranspilers } from './run-transpilers'
 
 export interface Options {
   context: object
-  entry: URL
+  entry: string
   baseURL: URL
   resolvers: Resolver[]
   loaders: Loader[]
@@ -20,13 +20,11 @@ export const application = async (options: Options) => {
 
   const linker = async (
     specifier: string,
-    parentModule?: SourceTextModule
+    parentModule: { url: string }
   ): Promise<SourceTextModule> => {
     const resolved = await runResolvers(options.resolvers, {
       specifier,
-      parentURL: parentModule
-        ? new URL(parentModule.url)
-        : new URL(options.baseURL.href)
+      parentURL: new URL(parentModule.url)
     })
 
     if (cache.has(resolved.url)) return cache.get(resolved.url)
@@ -42,7 +40,12 @@ export const application = async (options: Options) => {
       url: resolved.url.href,
       context: createContext(options.context),
       initializeImportMeta: meta =>
-        Object.assign(meta, { url: resolved.url.href }, loaded.meta, transpiled.meta)
+        Object.assign(
+          meta,
+          { url: resolved.url.href },
+          loaded.meta,
+          transpiled.meta
+        )
     })
 
     cache.add(resolved.url, source)
@@ -50,7 +53,7 @@ export const application = async (options: Options) => {
     return source
   }
 
-  const source = await linker(options.entry.href)
+  const source = await linker(options.entry, { url: options.baseURL.href })
   source.instantiate()
   await source.evaluate()
 }
