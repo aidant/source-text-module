@@ -33,7 +33,7 @@ export const application = ({
   ): Promise<SourceTextModule> => {
     const source = await linker(specifier, parentModule)
     source.instantiate()
-    source.evaluate()
+    await source.evaluate()
     return source
   }
 
@@ -57,7 +57,7 @@ export const application = ({
       url: url.href,
       importModuleDynamically,
       initializeImportMeta: meta =>
-        Object.assign(meta, { url: url.href }, loaded.code, transpiled && transpiled.code)
+        Object.assign(meta, { url: url.href }, loaded.meta, transpiled && transpiled.meta)
     })
 
     cache.add(url, source)
