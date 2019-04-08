@@ -15,13 +15,13 @@ const app = application({
   resolver: resolver({ extensions: ['.ts'] }),
   loaders: [
     {
-      test: () => true,
+      test: /file:/,
       handler: fileLoader
     }
   ],
   transpilers: [
     {
-      test: () => true,
+      test: /\.ts$/,
       handler: typescriptTranspiler(tsOptions)
     }
   ]

@@ -1,15 +1,7 @@
 import { Cache } from './cache'
 import { SourceTextModule, createContext } from 'vm'
 import { URL } from 'url'
-
-type Resolver = (options: { specifier: string; parentURL: URL }) => Promise<{ url: URL }>
-type Loader = (options: { url: URL }) => Promise<{ code: string; meta?: any }>
-type Transpiler = (options: { code: string }) => Promise<{ code: string; meta?: any }>
-
-interface Plugin<T> {
-  test: (url: URL) => boolean
-  handler: T
-}
+import { Plugin, Resolver, Loader, Transpiler, find } from './plugin'
 
 interface Options {
   scope?: object
@@ -45,9 +37,9 @@ export const application = ({
 
     if (cache.has(url)) return cache.get(url)
 
-    const loader = loaders.find(loader => loader.test(url))
+    const loader = find(loaders, url)
     if (!loader) throw new Error('no loader mate')
-    const transpiler = transpilers.find(transpiler => transpiler.test(url))
+    const transpiler = find(transpilers, url)
 
     const loaded = await loader.handler({ url })
     const transpiled = transpiler && (await transpiler.handler({ code: loaded.code }))
