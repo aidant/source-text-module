@@ -66,6 +66,7 @@ export const application = ({
   }
 
   return {
-    run: importModuleDynamically
+    run: (specifier: string, { url = new URL(process.cwd(), 'file:') } = {}) =>
+      importModuleDynamically(specifier, { url: url.href })
   }
 }

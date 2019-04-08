@@ -27,5 +27,6 @@ const app = application({
   ]
 })
 
-app.run('./hello-world', { url: 'file:///projects/source-text-module/test' })
+app
+  .run('./test/hello-world')
   .catch(console.error)
