@@ -23,7 +23,9 @@ export const resolver = ({
 
   if (parentURL.protocol !== 'file:') {
     const directory = path.parse(parentURL.pathname).dir
-    return { url: new URL(path.resolve(directory, specifier), parentURL.protocol) }
+    let pathname = path.resolve(directory, specifier)
+    const url = new URL(pathname, parentURL)
+    return { url }
   }
 
   const directory = (await fs.stat(parentURL.pathname)).isDirectory()
