@@ -1,7 +1,7 @@
 {
   "scripts": {
     "postinstall": "npm link npm",
-    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-vm-modules ./build\""
+    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-vm-modules --expose-internals ./build\""
   },
   "dependencies": {
     "axios": "^0.18.0",

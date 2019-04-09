@@ -2,6 +2,7 @@ import { Cache } from './cache'
 import { SourceTextModule, createContext } from 'vm'
 import { URL } from 'url'
 import { Plugin, Resolver, Loader, Transpiler, find } from './plugin'
+import { decorateErrorStack } from 'internal/util'
 
 interface Options {
   scope?: object
@@ -44,13 +45,21 @@ export const application = ({
     const loaded = await loader.handler({ url })
     const transpiled = transpiler && (await transpiler.handler({ code: loaded.code }))
 
-    const source = new SourceTextModule((transpiled && transpiled.code) || loaded.code, {
-      context,
-      url: url.href,
-      importModuleDynamically,
-      initializeImportMeta: meta =>
-        Object.assign(meta, { url: url.href }, loaded.meta, transpiled && transpiled.meta)
-    })
+    const code = transpiled ? transpiled.code : loaded.code
+
+    let source: SourceTextModule
+    try {
+      source = new SourceTextModule(code, {
+        context,
+        url: url.href,
+        importModuleDynamically,
+        initializeImportMeta: meta =>
+          Object.assign(meta, { url: url.href }, loaded.meta, transpiled && transpiled.meta)
+      })
+    } catch (error) {
+      decorateErrorStack(error)
+      throw error
+    }
 
     cache.add(url, source)
     await source.link(linker)
