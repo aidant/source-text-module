@@ -1,7 +1,9 @@
 {
+  "name": "source-text-module",
+  "type": "module",
   "scripts": {
     "postinstall": "npm link npm",
-    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-vm-modules --expose-internals ./build\""
+    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-modules --experimental-vm-modules --expose-internals ./build/index.js\""
   },
   "dependencies": {
     "axios": "^0.18.0",

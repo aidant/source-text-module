@@ -1,13 +1,13 @@
-import { application } from './application'
-import { resolver } from './plugins/resolver'
-import { fileLoader } from './plugins/file-loader'
-import { typescriptTranspiler } from './plugins/typescript-transpiler'
-import { TranspileOptions, ScriptTarget } from 'typescript'
-import { httpLoader } from './plugins/http-loader'
+import { application } from './application.js'
+import { resolver } from './plugins/resolver.js'
+import { fileLoader } from './plugins/file-loader.js'
+import { typescriptTranspiler } from './plugins/typescript-transpiler.js'
+import ts from 'typescript'
+import { httpLoader } from './plugins/http-loader.js'
 
-const tsOptions: TranspileOptions = {
+const tsOptions: ts.TranspileOptions = {
   compilerOptions: {
-    target: ScriptTarget.ESNext
+    target: ts.ScriptTarget.ESNext
   }
 }
 
@@ -18,7 +18,7 @@ const scope = {
 
 const app = application({
   scope,
-  resolver: resolver({ extensions: ['.ts'] }),
+  resolver: resolver(),
   loaders: [
     {
       test: /file:/,
@@ -38,5 +38,5 @@ const app = application({
 })
 
 app
-  .run('./test/hello-world')
+  .run('./test/hello-world.ts', { url: new URL('file:///projects/source-text-module/test') })
   .catch(console.error)

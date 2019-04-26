@@ -2,7 +2,7 @@ import path from 'path'
 import { URL } from 'url'
 import { promises as fs } from 'fs'
 import Module from 'module'
-import { allSettled } from '../all-settled'
+import { allSettled } from '../all-settled.js'
 const builtins = Module.builtinModules
 
 export const resolver = ({

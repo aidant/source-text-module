@@ -1,7 +1,7 @@
-import { Cache } from './cache'
+import { Cache } from './cache.js'
 import { SourceTextModule, createContext } from 'vm'
 import { URL } from 'url'
-import { Plugin, Resolver, Loader, Transpiler, find } from './plugin'
+import { Plugin, Resolver, Loader, Transpiler, find } from './plugin.js'
 import { decorateErrorStack } from 'internal/util'
 
 interface Options {

@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "lib": ["esnext"],
-    "module": "commonjs",
+    "module": "esnext",
     "strict": true,
     "target": "esnext",
     "outDir": "build",
-    "esModuleInterop": true
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "test"

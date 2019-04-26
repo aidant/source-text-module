@@ -1,5 +1,5 @@
 const main = async () => {
-  const { log } = await import('./log')
+  const { log } = await import('./log.ts')
   log('Hello World!!!')
 }
 
