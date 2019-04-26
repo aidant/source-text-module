@@ -7,10 +7,10 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "typescript": "^3.4.1"
+    "typescript": "^3.4.5"
   },
   "devDependencies": {
-    "@types/node": "^11.12.2",
-    "nodemon": "^1.18.10"
+    "@types/node": "^11.13.7",
+    "nodemon": "^1.18.11"
   }
 }
