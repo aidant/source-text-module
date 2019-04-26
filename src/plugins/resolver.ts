@@ -1,4 +1,4 @@
-import path from 'path'
+import { posix as path } from 'path'
 import { URL } from 'url'
 import { promises as fs } from 'fs'
 import Module from 'module'

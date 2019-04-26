@@ -68,7 +68,7 @@ export const application = ({
 
   return {
     cache,
-    run: (specifier: string, { url = new URL(process.cwd(), 'file:') } = {}) =>
+    run: (specifier: string, { url = new URL(process.cwd().replace(/^[a-z]:/i, ''), 'file:') } = {}) =>
       importModuleDynamically(specifier, { url: url.href })
   }
 }
