@@ -1,4 +1,4 @@
-import { application } from './application.js'
+import { Application } from './application.js'
 import { resolver } from './plugins/resolver.js'
 import { fileLoader } from './plugins/file-loader.js'
 import { typescriptTranspiler } from './plugins/typescript-transpiler.js'
@@ -11,13 +11,11 @@ const tsOptions: ts.TranspileOptions = {
   }
 }
 
-const scope = {
-  console,
-  Deno: { noColor: false }
-}
-
-const app = application({
-  scope,
+const app = new Application({
+  context: {
+    console,
+    Deno: { noColor: false }
+  },
   resolver: resolver(),
   loaders: [
     {
@@ -38,5 +36,5 @@ const app = application({
 })
 
 app
-  .run('./test/hello-world.ts', { url: new URL('file:///projects/source-text-module/test') })
+  .importModuleDynamically('./test/hello-world.ts', { url: 'file:///projects/source-text-module/test' })
   .catch(console.error)

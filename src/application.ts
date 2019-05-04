@@ -1,72 +1,79 @@
-import { SourceTextModule, createContext } from 'vm'
+import { SourceTextModule, createContext, Context } from 'vm'
 import { Plugin, Resolver, Loader, Transpiler, find } from './plugin.js'
 import { decorateErrorStack } from 'internal/util'
 
 interface Options {
-  scope?: object
+  context?: object
   resolver: Resolver
-  loaders: Plugin<Loader>[]
-  transpilers?: Plugin<Transpiler>[]
+  loaders: Iterable<Plugin<Loader>>
+  transpilers?: Iterable<Plugin<Transpiler>>
 }
 
-export const application = ({
-  scope = Object.create(null),
-  resolver,
-  loaders,
-  transpilers = []
-}: Options) => {
-  const cache = new Map<string, SourceTextModule>()
-  const context = createContext(scope)
+export class Application {
+  private context: Context
+  private resolver: Resolver
+  private loaders: Iterable<Plugin<Loader>>
+  private transpilers: Iterable<Plugin<Transpiler>>
 
-  const importModuleDynamically = async (
-    specifier: string,
-    parentModule: { url: string }
-  ): Promise<SourceTextModule> => {
-    const source = await linker(specifier, parentModule)
-    source.instantiate()
-    await source.evaluate()
-    return source
+  public cache = new Map<string, SourceTextModule>()
+
+  constructor(options: Options) {
+    this.context = createContext(options.context || Object.create(null))
+    this.resolver = options.resolver
+    this.loaders = options.loaders
+    this.transpilers = options.transpilers || []
+
+    this.initializeImportMeta = this.initializeImportMeta.bind(this)
+    this.linker = this.linker.bind(this)
+    this.importModuleDynamically = this.importModuleDynamically.bind(this)
   }
 
-  const linker = async (
+  private initializeImportMeta(url: URL, loadedMeta: any, transpiledMeta: any) {
+    return (meta: any) => Object.assign(meta, { url: url.href }, loadedMeta, transpiledMeta)
+  }
+
+  private async linker(
     specifier: string,
     parentModule: { url: string }
-  ): Promise<SourceTextModule> => {
-    const { url } = await resolver({ specifier, parentURL: new URL(parentModule.url) })
+  ): Promise<SourceTextModule> {
+    const { url } = await this.resolver({ specifier, parentURL: new URL(parentModule.url) })
 
-    let source: SourceTextModule = cache.get(url.href) as SourceTextModule
+    let source: SourceTextModule = this.cache.get(url.href) as SourceTextModule
     if (source) return source
 
-    const loader = find(loaders, url)
+    const loader = find(this.loaders, url)
     if (!loader) throw new Error('no loader mate')
-    const transpiler = find(transpilers, url)
+    const transpiler = find(this.transpilers, url)
 
     const loaded = await loader.handler({ url })
-    const transpiled = transpiler && (await transpiler.handler({ code: loaded.code }))
-
-    const code = transpiled ? transpiled.code : loaded.code
+    const transpiled = transpiler
+      ? await transpiler.handler({ code: loaded.code })
+      : { code: loaded.code, meta: {} }
 
     try {
-      source = new SourceTextModule(code, {
-        context,
+      source = new SourceTextModule(transpiled.code, {
+        context: this.context,
         url: url.href,
-        importModuleDynamically,
-        initializeImportMeta: meta =>
-          Object.assign(meta, { url: url.href }, loaded.meta, transpiled && transpiled.meta)
+        importModuleDynamically: this.importModuleDynamically,
+        initializeImportMeta: this.initializeImportMeta(url, loaded.meta, transpiled.meta)
       })
     } catch (error) {
       decorateErrorStack(error)
       throw error
     }
 
-    cache.set(url.href, source)
-    await source.link(linker)
+    this.cache.set(url.href, source)
+    await source.link(this.linker)
     return source
   }
 
-  return {
-    cache,
-    run: (specifier: string, { url = new URL(process.cwd().replace(/^[a-z]:/i, ''), 'file:') } = {}) =>
-      importModuleDynamically(specifier, { url: url.href })
+  public async importModuleDynamically(
+    specifier: string,
+    parentModule: { url: string }
+  ): Promise<SourceTextModule> {
+    const source = await this.linker(specifier, parentModule)
+    source.instantiate()
+    await source.evaluate()
+    return source
   }
 }
