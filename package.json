@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "npm link npm",
-    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-modules --experimental-vm-modules --expose-internals ./build/index.js\""
+    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-modules --experimental-vm-modules ./build/index.js\""
   },
   "dependencies": {
     "axios": "^0.18.0",

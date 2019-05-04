@@ -1,6 +1,5 @@
 import { SourceTextModule, createContext, Context } from 'vm'
 import { Plugin, Resolver, Loader, Transpiler, find } from './plugin.js'
-import { decorateErrorStack } from 'internal/util'
 
 interface Options {
   context?: object
@@ -50,17 +49,12 @@ export class Application {
       ? await transpiler.handler({ code: loaded.code })
       : { code: loaded.code, meta: {} }
 
-    try {
-      source = new SourceTextModule(transpiled.code, {
-        context: this.context,
-        url: url.href,
-        importModuleDynamically: this.importModuleDynamically,
-        initializeImportMeta: this.initializeImportMeta(url, loaded.meta, transpiled.meta)
-      })
-    } catch (error) {
-      decorateErrorStack(error)
-      throw error
-    }
+    source = new SourceTextModule(transpiled.code, {
+      context: this.context,
+      url: url.href,
+      importModuleDynamically: this.importModuleDynamically,
+      initializeImportMeta: this.initializeImportMeta(url, loaded.meta, transpiled.meta)
+    })
 
     this.cache.set(url.href, source)
     await source.link(this.linker)
