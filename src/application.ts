@@ -1,5 +1,4 @@
 import { SourceTextModule, createContext } from 'vm'
-import { URL } from 'url'
 import { Plugin, Resolver, Loader, Transpiler, find } from './plugin.js'
 import { decorateErrorStack } from 'internal/util'
 

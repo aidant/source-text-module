@@ -1,4 +1,3 @@
-import { URL } from 'url'
 // @ts-ignore
 import { builtinModules as builtins } from 'module'
 

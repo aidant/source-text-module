@@ -1,5 +1,3 @@
-import { URL } from 'url'
-
 type Matcher = (url: URL) => boolean
 
 export interface Plugin<T> {
