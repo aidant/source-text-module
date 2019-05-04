@@ -1,4 +1,3 @@
-import { Cache } from './cache.js'
 import { SourceTextModule, createContext } from 'vm'
 import { URL } from 'url'
 import { Plugin, Resolver, Loader, Transpiler, find } from './plugin.js'
@@ -17,7 +16,7 @@ export const application = ({
   loaders,
   transpilers = []
 }: Options) => {
-  const cache = new Cache<SourceTextModule>()
+  const cache = new Map<string, SourceTextModule>()
   const context = createContext(scope)
 
   const importModuleDynamically = async (
@@ -36,7 +35,8 @@ export const application = ({
   ): Promise<SourceTextModule> => {
     const { url } = await resolver({ specifier, parentURL: new URL(parentModule.url) })
 
-    if (cache.has(url)) return cache.get(url)
+    let source: SourceTextModule = cache.get(url.href) as SourceTextModule
+    if (source) return source
 
     const loader = find(loaders, url)
     if (!loader) throw new Error('no loader mate')
@@ -47,7 +47,6 @@ export const application = ({
 
     const code = transpiled ? transpiled.code : loaded.code
 
-    let source: SourceTextModule
     try {
       source = new SourceTextModule(code, {
         context,
@@ -61,7 +60,7 @@ export const application = ({
       throw error
     }
 
-    cache.add(url, source)
+    cache.set(url.href, source)
     await source.link(linker)
     return source
   }
