@@ -33,9 +33,9 @@ export class Application {
 
   private async linker(
     specifier: string,
-    parentModule: { url: string }
+    parentModule: { identifier: string }
   ): Promise<SourceTextModule> {
-    const { url } = await this.resolver({ specifier, parentURL: new URL(parentModule.url) })
+    const { url } = await this.resolver({ specifier, parentURL: new URL(parentModule.identifier) })
 
     let source: SourceTextModule = this.cache.get(url.href) as SourceTextModule
     if (source) return source
@@ -51,7 +51,7 @@ export class Application {
 
     source = new SourceTextModule(transpiled.code, {
       context: this.context,
-      url: url.href,
+      identifier: url.href,
       importModuleDynamically: this.importModuleDynamically,
       initializeImportMeta: this.initializeImportMeta(url, loaded.meta, transpiled.meta)
     })
@@ -63,10 +63,9 @@ export class Application {
 
   public async importModuleDynamically(
     specifier: string,
-    parentModule: { url: string }
+    parentModule: { identifier: string }
   ): Promise<SourceTextModule> {
     const source = await this.linker(specifier, parentModule)
-    source.instantiate()
     await source.evaluate()
     return source
   }

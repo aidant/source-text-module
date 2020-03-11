@@ -36,5 +36,5 @@ const app = new Application({
 })
 
 app
-  .importModuleDynamically('./test/hello-world.ts', { url: 'file:///projects/source-text-module/test' })
+  .importModuleDynamically('./hello-world.ts', { identifier: 'file:///home/aidant/projects/source-text-module/test/' })
   .catch(console.error)

@@ -1,12 +1,16 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "lib": ["esnext"],
     "module": "esnext",
-    "strict": true,
-    "target": "esnext",
-    "outDir": "build",
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
+    "outDir": "lib",
+    "resolveJsonModule": true,
+    "rootDir": "src",
+    "sourceMap": true,
+    "strict": true,
+    "target": "esnext"
   },
   "exclude": [
     "test"

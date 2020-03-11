@@ -1,32 +1,48 @@
 declare module 'vm' {
-  type Linker = (specifier: string, referencingModule: SourceTextModule) => SourceTextModule | Promise<SourceTextModule>
-
-  interface ModuleOptions {
-    url?: string
-    context?: Context
-    lineOffset?: number
-    columnOffset?: number
-    initializeImportMeta?: (meta: { url: string }, module: SourceTextModule) => void
-    importModuleDynamically?: Linker
-  }
+  interface Meta { url: string }
+  type Linker = (specifier: string, referencingModule: Module) => Module | Promise<Module>
+  type InitializeImportMeta = (meta: Meta, module: Module) => void
 
   interface ModuleEvaluateOptions {
     timeout?: number
     breakOnSigint?: boolean
   }
 
-  class SourceTextModule {
-    constructor(code: string, options?: ModuleOptions)
-
+  class Module {
     dependencySpecifiers: string[]
     error: any
-    linkingStatus: 'unlinked' | 'linking' | 'linked' | 'errored'
+    identifier: string
     namespace: object
-    status: 'uninstantiated' | 'instantiating' | 'instantiated' | 'evaluating' | 'evaluated' | 'errored'
-    url: string
+    status: 'unlinked' | 'linking' | 'linked' | 'evaluating' | 'evaluated' | 'errored'
 
-    link(linker: Linker): Promise<SourceTextModule>
-    instantiate(): void
     evaluate(options?: ModuleEvaluateOptions): Promise<{ result: unknown }>
+    link(linker: Linker): Promise<Module>
+  }
+
+  interface SourceTextModuleConstructorOptions {
+    identifier?: string
+    cachedData?: Buffer | NodeJS.TypedArray | DataView
+    context?: Context
+    lineOffset?: number
+    columnOffset?: number
+    initializeImportMeta?: InitializeImportMeta
+    importModuleDynamically?: Linker
+  }
+
+  class SourceTextModule extends Module {
+    constructor(code: string, options?: SourceTextModuleConstructorOptions)
+
+    createCachedData(): Buffer
+  }
+
+  interface SyntheticModuleConstructorOptions {
+    identifier?: string
+    context?: Context
+  }
+
+  class SyntheticModule extends Module {
+    constructor(exportNames: string[], evaluateCallback: () => void, options?: SyntheticModuleConstructorOptions)
+
+    setExport(name: string, value: unknown): void
   }
 }

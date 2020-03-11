@@ -3,14 +3,19 @@
   "type": "module",
   "scripts": {
     "postinstall": "npm link npm",
-    "start": "nodemon --watch src --ext ts --exec \"tsc && node --no-warnings --experimental-modules --experimental-vm-modules ./build/index.js\""
+    "start": "nodemon",
+    "build": "tsc",
+    "development": "node --no-warnings --experimental-modules --experimental-vm-modules ./lib/index.js"
+  },
+  "engines": {
+    "node": "^12.12.0"
   },
   "dependencies": {
-    "axios": "^0.18.0",
-    "typescript": "^3.4.5"
+    "axios": "^0.19.2",
+    "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "@types/node": "^11.13.7",
-    "nodemon": "^1.18.11"
+    "@types/node": "^13.9.0",
+    "nodemon": "^2.0.2"
   }
 }
